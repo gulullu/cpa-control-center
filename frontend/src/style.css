@@ -484,6 +484,21 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.74rem;
+}
+
+.sidebar-kicker {
+  color: rgba(247, 241, 226, 0.74);
+}
+
+.eyebrow,
+.panel-kicker,
+.stat-label {
+  color: rgba(88, 78, 64, 0.68);
+  font-weight: 800;
+}
+
+.quota-workspace-panel--dark .panel-kicker,
+.quota-detail-modal .panel-kicker {
   color: rgba(247, 241, 226, 0.74);
 }
 
@@ -3766,7 +3781,7 @@ select {
 
 @media (max-width: 720px) {
   :root {
-    --mobile-nav-height: 74px;
+    --mobile-nav-height: 88px;
     --shell-gap: 10px;
     --shell-pad: 10px;
   }
@@ -3836,12 +3851,13 @@ select {
 
   .nav-item,
   .app-shell--compact .nav-item {
-    flex: 1 0 64px;
-    min-width: 64px;
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 60px;
     align-items: center;
     justify-content: center;
     min-height: 48px;
-    padding: 0.52rem 0.42rem;
+    padding: 0.52rem 0.6rem;
     border-radius: 14px;
     text-align: center;
     transform: none;
@@ -3855,9 +3871,10 @@ select {
   .nav-item strong {
     max-width: 100%;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
     white-space: nowrap;
-    font-size: 0.82rem;
+    line-height: 1.1;
+    font-size: 0.78rem;
   }
 
   .app-shell--macos .app-main,
@@ -3923,7 +3940,7 @@ select {
   .view-shell,
   .app-shell--compact .view-shell {
     gap: 0.7rem;
-    padding: 0 0.12rem 0.35rem 0;
+    padding: 0 0.12rem calc(var(--mobile-nav-height) + 0.35rem + env(safe-area-inset-bottom)) 0;
     scrollbar-gutter: auto;
   }
 
@@ -3959,6 +3976,10 @@ select {
     padding-inline: 0.45rem;
     font-size: 0.84rem;
     white-space: normal;
+  }
+
+  .hero-actions .el-button:only-child {
+    grid-column: 1 / -1;
   }
 
   .stats-grid,
@@ -4156,7 +4177,13 @@ select {
     flex: 0 0 auto;
   }
 
-  .quota-workspace-tabs {
+  .quota-hero__buttons .el-button:only-child {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .quota-workspace-tabs,
+  .app-shell--compact .quota-workspace-tabs {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.44rem;
     padding: 0.5rem;
@@ -4260,12 +4287,11 @@ select {
 
   .nav-item,
   .app-shell--compact .nav-item {
-    flex-basis: 58px;
-    min-width: 58px;
+    min-width: 56px;
   }
 
   .nav-item strong {
-    font-size: 0.76rem;
+    font-size: 0.72rem;
   }
 
   .quota-workspace-tabs__item {
