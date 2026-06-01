@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { ElButton, ElMessage, ElOption, ElSelect } from 'element-plus'
+import { ElButton, ElInput, ElMessage, ElOption, ElSelect } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import QuotaAccountDetailPanel from '@/components/QuotaAccountDetailPanel.vue'
 import QuotaAccountsMatrix from '@/components/QuotaAccountsMatrix.vue'
@@ -51,10 +51,16 @@ const isFailureOnlySnapshot = computed(() => (
   Boolean(snapshot.value && snapshot.value.failedAccounts > 0 && snapshot.value.successfulAccounts === 0)
 ))
 
-const quotaProgress = computed(() => tasksStore.quota)
-const isRefreshing = computed(() => tasksStore.quota.active)
+const isRefreshing = computed(() => tasksStore.quota.active || quotasStore.pendingRefresh)
+const effectiveQuotaProgress = computed(() => (
+  tasksStore.quota.active
+    ? tasksStore.quota
+    : quotasStore.pendingRefresh
+      ? quotasStore.quotaRefreshProgress()
+      : tasksStore.quota
+))
 const progressPercent = computed(() => {
-  const { current, total } = quotaProgress.value
+  const { current, total } = effectiveQuotaProgress.value
   if (total <= 0) return 0
   return Math.round((current / total) * 100)
 })
@@ -71,6 +77,18 @@ const filteredPlans = computed(() => (
 ))
 
 const filteredAccounts = computed(() => accountDetails.value.filter((account) => {
+  const query = quotasStore.searchQuery.trim().toLowerCase()
+  if (query) {
+    const haystack = [
+      account.name,
+      account.email,
+      account.planType,
+      account.error,
+    ].filter(Boolean).join(' ').toLowerCase()
+    if (!haystack.includes(query)) {
+      return false
+    }
+  }
   if (quotasStore.planFilter !== 'all' && normalizeQuotaPlanType(account.planType) !== quotasStore.planFilter) {
     return false
   }
@@ -184,8 +202,8 @@ onMounted(() => {
           </el-button>
           <div v-if="isRefreshing && hasAnyResults" class="quota-progress-inline">
             <div class="quota-progress-inline__text">
-              <span>{{ quotaProgress.message }}</span>
-              <span v-if="quotaProgress.total > 0" class="quota-progress-inline__counter">{{ quotaProgress.current }}/{{ quotaProgress.total }}</span>
+              <span>{{ effectiveQuotaProgress.message }}</span>
+              <span v-if="effectiveQuotaProgress.total > 0" class="quota-progress-inline__counter">{{ effectiveQuotaProgress.current }}/{{ effectiveQuotaProgress.total }}</span>
             </div>
             <div class="quota-progress-inline__track">
               <span class="quota-progress-inline__bar" :style="{ width: `${progressPercent}%` }" />
@@ -206,13 +224,13 @@ onMounted(() => {
       <div class="quota-progress-center__body">
         <p class="panel-kicker">{{ t('quotas.eyebrow') }}</p>
         <h3>{{ t('common.loading') }}</h3>
-        <p class="muted quota-progress-center__message">{{ quotaProgress.message || t('quotas.loading') }}</p>
-        <div v-if="quotaProgress.total > 0" class="quota-progress-center__stats">
-          <span>{{ quotaProgress.current }} / {{ quotaProgress.total }}</span>
+        <p class="muted quota-progress-center__message">{{ effectiveQuotaProgress.message || t('quotas.loading') }}</p>
+        <div v-if="effectiveQuotaProgress.total > 0" class="quota-progress-center__stats">
+          <span>{{ effectiveQuotaProgress.current }} / {{ effectiveQuotaProgress.total }}</span>
           <span>{{ progressPercent }}%</span>
         </div>
         <div class="quota-progress-center__track">
-          <span class="quota-progress-center__bar" :style="{ width: quotaProgress.total > 0 ? `${progressPercent}%` : undefined }" :class="{ 'quota-progress-center__bar--indeterminate': quotaProgress.total <= 0 }" />
+          <span class="quota-progress-center__bar" :style="{ width: effectiveQuotaProgress.total > 0 ? `${progressPercent}%` : undefined }" :class="{ 'quota-progress-center__bar--indeterminate': effectiveQuotaProgress.total <= 0 }" />
         </div>
       </div>
     </article>
@@ -264,6 +282,17 @@ onMounted(() => {
                   {{ t('quotas.filters.results.failed') }}
                 </button>
               </div>
+            </div>
+
+
+            <div class="quota-workspace-toolbar__group quota-workspace-toolbar__group--search">
+              <span class="quota-workspace-toolbar__label">{{ t('quotas.filters.query') }}</span>
+              <el-input
+                :model-value="quotasStore.searchQuery"
+                :placeholder="t('quotas.filters.queryPlaceholder')"
+                clearable
+                @input="quotasStore.setSearchQuery($event)"
+              />
             </div>
 
             <div v-if="quotasStore.activeView === 'matrix'" class="quota-workspace-toolbar__group">

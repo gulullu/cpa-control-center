@@ -202,7 +202,7 @@ function tryQuotaAutoRefresh(now = new Date()) {
   }
   lastQuotaAutoRefreshKey = currentMinuteKey
   emitDebug('quota', 'auto refresh triggered', { cron, minute: currentMinuteKey })
-  void quotasStore.refreshSnapshot().catch((error) => {
+  void quotasStore.refreshSnapshot({ background: true }).catch((error) => {
     emitDebugError('quota', 'auto refresh failed', error)
   })
 }

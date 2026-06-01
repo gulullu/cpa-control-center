@@ -71,6 +71,7 @@ export const messages = {
         delete401: 'Delete 401',
         invalid401: '401 Action',
         quota: 'Quota Action',
+      quotaRefreshingCached: 'Refreshing Codex quota in the background while keeping {count} cached accounts visible.',
         reenable: 'Re-enable',
         complete: 'Complete',
       },
@@ -205,6 +206,8 @@ export const messages = {
       filters: {
         plan: 'Plan filter',
         allPlans: 'All plans',
+        query: 'Search',
+        queryPlaceholder: 'Search name, email, plan or error',
         result: 'Result filter',
         rows: 'Rows',
         rowsValue: '{value} rows',
@@ -547,6 +550,7 @@ export const messages = {
         delete401: '删除 401',
         invalid401: '处理 401',
         quota: '处理限额',
+      quotaRefreshingCached: '正在后台刷新 Codex 额度，已保留 {count} 个缓存账号显示。',
         reenable: '恢复启用',
         complete: '完成',
       },
@@ -681,6 +685,8 @@ export const messages = {
       filters: {
         plan: '套餐筛选',
         allPlans: '全部套餐',
+        query: '查询',
+        queryPlaceholder: '搜索名称、邮箱、套餐或错误',
         result: '结果筛选',
         rows: '显示行数',
         rowsValue: '每页 {value} 行',

@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
 	"crypto/subtle"
 	"embed"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -426,6 +429,8 @@ func spaHandler() http.HandlerFunc {
 	}
 }
 
+const controlSessionCookieName = "cpa_control_session"
+
 func basicAuth(next http.Handler) http.Handler {
 	username := os.Getenv("CPA_CONTROL_CENTER_USERNAME")
 	password := os.Getenv("CPA_CONTROL_CENTER_PASSWORD")
@@ -435,6 +440,11 @@ func basicAuth(next http.Handler) http.Handler {
 
 	realm := `Basic realm="CPA Control Center"`
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if validControlSessionCookie(r, username, password) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		user, pass, ok := r.BasicAuth()
 		if !ok ||
 			subtle.ConstantTimeCompare([]byte(user), []byte(username)) != 1 ||
@@ -443,8 +453,59 @@ func basicAuth(next http.Handler) http.Handler {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
+
+		setControlSessionCookie(w, r, username, password)
 		next.ServeHTTP(w, r)
 	})
+}
+
+func validControlSessionCookie(r *http.Request, username string, password string) bool {
+	cookie, err := r.Cookie(controlSessionCookieName)
+	if err != nil || cookie.Value == "" {
+		return false
+	}
+	parts := strings.Split(cookie.Value, ":")
+	if len(parts) != 2 {
+		return false
+	}
+	expiresUnix, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil || time.Now().Unix() > expiresUnix {
+		return false
+	}
+	expected := signControlSession(username, password, expiresUnix)
+	return subtle.ConstantTimeCompare([]byte(parts[1]), []byte(expected)) == 1
+}
+
+func setControlSessionCookie(w http.ResponseWriter, r *http.Request, username string, password string) {
+	days := envInt("CPA_CONTROL_CENTER_SESSION_DAYS", 90)
+	if days <= 0 {
+		days = 90
+	}
+	expires := time.Now().Add(time.Duration(days) * 24 * time.Hour)
+	expiresUnix := expires.Unix()
+	http.SetCookie(w, &http.Cookie{
+		Name:     controlSessionCookieName,
+		Value:    fmt.Sprintf("%d:%s", expiresUnix, signControlSession(username, password, expiresUnix)),
+		Path:     "/",
+		Expires:  expires,
+		MaxAge:   int(time.Until(expires).Seconds()),
+		HttpOnly: true,
+		Secure:   isHTTPSRequest(r),
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func signControlSession(username string, password string, expiresUnix int64) string {
+	mac := hmac.New(sha256.New, []byte(password))
+	_, _ = mac.Write([]byte(fmt.Sprintf("%s:%d", username, expiresUnix)))
+	return hex.EncodeToString(mac.Sum(nil))
+}
+
+func isHTTPSRequest(r *http.Request) bool {
+	if r.TLS != nil {
+		return true
+	}
+	return strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https")
 }
 
 func writeAPIError(w http.ResponseWriter, status int, err error) {
@@ -463,4 +524,16 @@ func envString(key string, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func envInt(key string, fallback int) int {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return fallback
+	}
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return fallback
+	}
+	return parsed
 }

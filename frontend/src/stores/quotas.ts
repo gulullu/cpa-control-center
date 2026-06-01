@@ -1,11 +1,17 @@
 import { defineStore } from 'pinia'
 import { GetCachedCodexQuotaSnapshot, GetCodexQuotaSnapshot } from '../../wailsjs/go/main/App'
-import type { CodexQuotaSnapshot, QuotaRecoveryMode, QuotaResultFilter, QuotaSortMode, QuotaViewMode } from '@/types'
+import { i18n } from '@/i18n'
+import type { CodexQuotaSnapshot, QuotaRecoveryMode, QuotaResultFilter, QuotaSortMode, QuotaViewMode, TaskProgress } from '@/types'
 import { toErrorMessage } from '@/utils/errors'
+
+interface RefreshSnapshotOptions {
+  background?: boolean
+}
 
 interface QuotasState {
   snapshot: CodexQuotaSnapshot | null
   loading: boolean
+  pendingRefresh: boolean
   error: string
   hasRequested: boolean
   activeView: QuotaViewMode
@@ -18,12 +24,14 @@ interface QuotasState {
   recoveryRows: number
   recoveryMode: QuotaRecoveryMode
   selectedAccountName: string
+  searchQuery: string
 }
 
 export const useQuotasStore = defineStore('quotasStore', {
   state: (): QuotasState => ({
     snapshot: null,
     loading: false,
+    pendingRefresh: false,
     error: '',
     hasRequested: false,
     activeView: 'overview',
@@ -36,6 +44,7 @@ export const useQuotasStore = defineStore('quotasStore', {
     recoveryRows: 3,
     recoveryMode: 'earliest',
     selectedAccountName: '',
+    searchQuery: '',
   }),
   getters: {
     plans: (state) => state.snapshot?.plans ?? [],
@@ -56,8 +65,24 @@ export const useQuotasStore = defineStore('quotasStore', {
         this.selectedAccountName = ''
       }
     },
-    async refreshSnapshot() {
-      this.loading = true
+    quotaRefreshProgress(): TaskProgress {
+      return {
+        kind: 'quota',
+        phase: 'query',
+        current: 0,
+        total: this.snapshot?.totalAccounts ?? 0,
+        message: this.snapshot
+          ? i18n.global.t('tasks.quotaRefreshingCached', { count: this.snapshot.totalAccounts })
+          : i18n.global.t('quotas.loading'),
+        done: false,
+      }
+    },
+    async refreshSnapshot(options: RefreshSnapshotOptions = {}) {
+      if (options.background) {
+        this.pendingRefresh = true
+      } else {
+        this.loading = true
+      }
       this.error = ''
       this.hasRequested = true
       try {
@@ -72,7 +97,11 @@ export const useQuotasStore = defineStore('quotasStore', {
         }
         throw new Error(message)
       } finally {
-        this.loading = false
+        if (options.background) {
+          this.pendingRefresh = false
+        } else {
+          this.loading = false
+        }
       }
     },
     async loadCachedSnapshot() {
@@ -133,6 +162,11 @@ export const useQuotasStore = defineStore('quotasStore', {
     },
     setSelectedAccount(name: string) {
       this.selectedAccountName = name
+    },
+    setSearchQuery(value: string) {
+      this.searchQuery = value
+      this.matrixPage = 1
+      this.recoveryPage = 1
     },
   },
 })
