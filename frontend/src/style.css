@@ -3944,6 +3944,20 @@ select {
     scrollbar-gutter: auto;
   }
 
+  .view-shell--logs {
+    grid-template-rows: auto auto;
+  }
+
+  .view-shell--logs > .panel--fill {
+    grid-row: 1;
+    min-height: min(460px, calc(100dvh - var(--mobile-nav-height) - 180px));
+  }
+
+  .view-shell--logs > .stats-grid {
+    grid-row: 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .hero-panel,
   .app-shell--compact .hero-panel {
     display: grid;
@@ -3997,6 +4011,10 @@ select {
     gap: 0.55rem;
   }
 
+  .view-shell--logs > .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .stat-card,
   .app-shell--compact .stat-card {
     min-height: 0;
@@ -4011,6 +4029,14 @@ select {
 
   .stat-card small {
     font-size: 0.78rem;
+  }
+
+  .view-shell--logs .stat-card {
+    padding: 0.62rem 0.7rem;
+  }
+
+  .view-shell--logs .stat-card strong {
+    font-size: 1rem;
   }
 
   .panel,
