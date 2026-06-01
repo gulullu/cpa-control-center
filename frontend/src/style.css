@@ -3456,9 +3456,11 @@ select {
 
 .app-shell--compact .hero-panel {
   gap: 0.9rem;
-  padding: 0.95rem 1rem;
-  flex-direction: column;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  padding: 0.95rem 1rem 1.45rem;
+  overflow: visible;
 }
 
 .app-shell--compact .hero-panel h2 {
@@ -3471,12 +3473,25 @@ select {
 }
 
 .app-shell--compact .hero-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: 0.58rem;
   width: 100%;
-  justify-content: flex-start;
+  justify-content: stretch;
+  margin-bottom: 0.35rem;
 }
 
 .app-shell--compact .hero-actions .el-button {
-  min-width: 104px;
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin-left: 0 !important;
+  padding-inline: 0.65rem;
+  white-space: normal;
+}
+
+.app-shell--compact .hero-actions .el-button:only-child {
+  grid-column: 1 / -1;
 }
 
 .app-shell--compact .stats-grid {
@@ -3529,7 +3544,12 @@ select {
 }
 
 .app-shell--compact .quota-hero {
-  gap: 0.85rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 0.9rem;
+  padding-bottom: 1.45rem;
+  overflow: visible;
 }
 
 .app-shell--compact .quota-hero__actions,
@@ -3539,12 +3559,44 @@ select {
   text-align: left;
 }
 
+.app-shell--compact .quota-hero__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  flex: none;
+  gap: 0.95rem;
+}
+
 .app-shell--compact .quota-hero__buttons {
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  justify-content: stretch;
+  gap: 0.58rem;
+  width: 100%;
+  margin-bottom: 0.4rem;
 }
 
 .app-shell--compact .quota-hero__actions .el-button {
-  align-self: flex-start;
+  align-self: stretch;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 0;
+  margin-left: 0 !important;
+}
+
+.app-shell--compact .quota-hero__buttons .el-button {
+  width: 100%;
+  min-width: 0;
+  margin-left: 0 !important;
+  white-space: normal;
+}
+
+.app-shell--compact .quota-hero__buttons .el-button:only-child {
+  grid-column: 1 / -1;
+}
+
+.app-shell--compact .view-shell--dashboard .hero-panel + .stats-grid,
+.app-shell--compact .view-shell--quotas .quota-hero + .quota-workspace-tabs {
+  margin-top: 0.85rem;
 }
 
 .app-shell--compact .quota-grid {
@@ -3777,6 +3829,101 @@ select {
 
 .scan-detail-drawer--compact .scan-detail-table-footer {
   justify-content: flex-start;
+}
+
+@media (max-width: 1365px), (max-height: 819px) {
+  .hero-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 0.9rem;
+    padding-bottom: 1.45rem;
+    overflow: visible;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    gap: 0.58rem;
+    width: 100%;
+    justify-content: stretch;
+    margin-bottom: 0.35rem;
+  }
+
+  .hero-actions .el-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    margin-left: 0 !important;
+    padding-inline: 0.65rem;
+    white-space: normal;
+  }
+
+  .hero-actions .el-button:only-child {
+    grid-column: 1 / -1;
+  }
+
+  .quota-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 0.9rem;
+    padding-bottom: 1.45rem;
+    overflow: visible;
+  }
+
+  .quota-hero__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    flex: none;
+    width: 100%;
+    gap: 0.95rem;
+    align-items: stretch;
+    text-align: left;
+  }
+
+  .quota-hero__meta {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .quota-hero__actions .el-button {
+    align-self: stretch;
+    width: 100%;
+    min-height: 42px;
+    margin-top: 0;
+    margin-left: 0 !important;
+  }
+
+  .quota-hero__buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+    justify-content: stretch;
+    gap: 0.58rem;
+    width: 100%;
+    margin-bottom: 0.4rem;
+  }
+
+  .quota-hero__buttons .el-button {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0 !important;
+    white-space: normal;
+  }
+
+  .quota-hero__buttons .el-button:only-child {
+    grid-column: 1 / -1;
+  }
+
+  .quota-progress-inline {
+    width: 100%;
+  }
+
+  .view-shell--dashboard .hero-panel + .stats-grid,
+  .view-shell--quotas .quota-hero + .quota-workspace-tabs {
+    margin-top: 0.85rem;
+  }
 }
 
 @media (max-width: 720px) {
