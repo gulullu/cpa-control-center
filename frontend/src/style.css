@@ -3946,8 +3946,11 @@ select {
 
   .hero-panel,
   .app-shell--compact .hero-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
     gap: 0.65rem;
-    padding: 0.78rem 0.82rem;
+    padding: 0.78rem 0.82rem 1rem;
     border-radius: 18px;
   }
 
@@ -3966,6 +3969,7 @@ select {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.48rem;
+    width: 100%;
   }
 
   .hero-actions .el-button,
@@ -3980,6 +3984,11 @@ select {
 
   .hero-actions .el-button:only-child {
     grid-column: 1 / -1;
+  }
+
+  .view-shell--dashboard .hero-panel + .stats-grid,
+  .view-shell--quotas .quota-hero + .quota-workspace-tabs {
+    margin-top: 0.35rem;
   }
 
   .stats-grid,
@@ -4162,6 +4171,18 @@ select {
 
   .quota-hero__meta {
     gap: 0.2rem;
+  }
+
+  .quota-hero__actions,
+  .app-shell--compact .quota-hero__actions {
+    flex: none;
+    width: 100%;
+  }
+
+  .quota-hero__actions .el-button,
+  .app-shell--compact .quota-hero__actions .el-button {
+    align-self: stretch;
+    margin-top: 0;
   }
 
   .quota-hero__buttons,
