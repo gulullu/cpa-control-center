@@ -3963,9 +3963,10 @@ select {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
-    gap: 0.65rem;
-    padding: 0.78rem 0.82rem 1rem;
+    gap: 0.8rem;
+    padding: 0.82rem 0.82rem 1.45rem;
     border-radius: 18px;
+    overflow: visible;
   }
 
   .hero-panel h2,
@@ -3984,6 +3985,7 @@ select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.48rem;
     width: 100%;
+    margin-bottom: 0.3rem;
   }
 
   .hero-actions .el-button,
@@ -4002,7 +4004,7 @@ select {
 
   .view-shell--dashboard .hero-panel + .stats-grid,
   .view-shell--quotas .quota-hero + .quota-workspace-tabs {
-    margin-top: 0.35rem;
+    margin-top: 0.75rem;
   }
 
   .stats-grid,
@@ -4203,6 +4205,7 @@ select {
   .app-shell--compact .quota-hero__actions {
     flex: none;
     width: 100%;
+    gap: 0.95rem;
   }
 
   .quota-hero__actions .el-button,
@@ -4222,6 +4225,10 @@ select {
 
   .quota-hero__buttons .el-button {
     flex: 0 0 auto;
+  }
+
+  .quota-hero__buttons {
+    margin-bottom: 0.35rem;
   }
 
   .quota-hero__buttons .el-button:only-child {
